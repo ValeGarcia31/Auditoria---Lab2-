@@ -188,9 +188,9 @@
                                     <div class="p-0 p-sm-4 px-xl-0">
                                         <div id="reviewcarouselIndicators" class="carousel slide" data-bs-ride="carousel">
                                             <div class="carousel-indicators carousel-indicators-rounded justify-content-start ms-0 mb-0">
-                                                <button type="button" data-bs-target="#reviewcarouselIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                                                <button type="button" data-bs-target="#reviewcarouselIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                                                <button type="button" data-bs-target="#reviewcarouselIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                                                <button type="button" data-bs-target="#reviewcarouselIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Diapositiva 1"></button>
+                                                <button type="button" data-bs-target="#reviewcarouselIndicators" data-bs-slide-to="1" aria-label="Diapositiva 2"></button>
+                                                <button type="button" data-bs-target="#reviewcarouselIndicators" data-bs-slide-to="2" aria-label="Diapositiva 3"></button>
                                             </div>
                                             <!-- end carouselIndicators -->
                                             <div class="carousel-inner">
@@ -198,12 +198,12 @@
                                                     <div class="testi-contain text-white">
                                                         <i class="bx bxs-quote-alt-left text-success display-6"></i>
 
-                                                        <h4 class="mt-4 fw-medium lh-base text-white">“I feel confident
-                                                            imposing change
-                                                            on myself. It's a lot more progressing fun than looking back.
-                                                            That's why
-                                                            I ultricies enim
-                                                            at malesuada nibh diam on tortor neaded to throw curve balls.”
+                                                        <h4 class="mt-4 fw-medium lh-base text-white">“Me siento seguro
+                                                            al imponerme cambios.
+                                                            Es mucho más divertido progresar que mirar atrás.
+                                                            Por eso
+                                                            decidí avanzar
+                                                            y afrontar los desafíos.”
                                                         </h4>
                                                         <div class="mt-4 pt-3 pb-5">
                                                             <div class="d-flex align-items-start">
@@ -213,7 +213,7 @@
                                                                 <div class="flex-grow-1 ms-3 mb-4">
                                                                     <h5 class="font-size-18 text-white">Richard Drews
                                                                     </h5>
-                                                                    <p class="mb-0 text-white-50">Web Designer</p>
+                                                                    <p class="mb-0 text-white-50">Diseñador web</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -224,12 +224,13 @@
                                                     <div class="testi-contain text-white">
                                                         <i class="bx bxs-quote-alt-left text-success display-6"></i>
 
-                                                        <h4 class="mt-4 fw-medium lh-base text-white">“Our task must be to
-                                                            free ourselves by widening our circle of compassion to embrace
-                                                            all living
-                                                            creatures and
-                                                            the whole of quis consectetur nunc sit amet semper justo. nature
-                                                            and its beauty.”</h4>
+                                                        <h4 class="mt-4 fw-medium lh-base text-white">“Nuestra tarea debe ser
+                                                            liberarnos ampliando nuestro círculo de compasión para abrazar
+                                                            a todos los seres
+                                                            vivos y
+                                                            a toda la naturaleza,
+                                                            con su belleza.”
+                                                        </h4>
                                                         <div class="mt-4 pt-3 pb-5">
                                                             <div class="d-flex align-items-start">
                                                                 <div class="flex-shrink-0">
@@ -238,7 +239,7 @@
                                                                 <div class="flex-grow-1 ms-3 mb-4">
                                                                     <h5 class="font-size-18 text-white">Rosanna French
                                                                     </h5>
-                                                                    <p class="mb-0 text-white-50">Web Developer</p>
+                                                                    <p class="mb-0 text-white-50">Desarrolladora web</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -249,18 +250,19 @@
                                                     <div class="testi-contain text-white">
                                                         <i class="bx bxs-quote-alt-left text-success display-6"></i>
 
-                                                        <h4 class="mt-4 fw-medium lh-base text-white">“I've learned that
-                                                            people will forget what you said, people will forget what you
-                                                            did,
-                                                            but people will never forget
-                                                            how donec in efficitur lectus, nec lobortis metus you made them
-                                                            feel.”</h4>
+                                                        <h4 class="mt-4 fw-medium lh-base text-white">“He aprendido que
+                                                            las personas olvidarán lo que dijiste y lo que
+                                                            hiciste,
+                                                            pero nunca olvidarán
+                                                            cómo las hiciste
+                                                            sentir.”
+                                                        </h4>
                                                         <div class="mt-4 pt-3 pb-5">
                                                             <div class="d-flex align-items-start">
                                                                 <img src="assets/picture/avatar-3-1.jpg" class="avatar-md img-fluid rounded-circle" alt="...">
                                                                 <div class="flex-1 ms-3 mb-4">
                                                                     <h5 class="font-size-18 text-white">Ilse R. Eaton</h5>
-                                                                    <p class="mb-0 text-white-50">Manager
+                                                                    <p class="mb-0 text-white-50">Gerente
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -301,3 +303,13 @@
     </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
