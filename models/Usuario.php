@@ -1,4 +1,6 @@
 <?php
+    require_once __DIR__ . "/Logger.php";
+    require_once __DIR__ . "/Email.php";
     /* TODO: Definición de la clase Usuario que extiende la clase Conectar */
     class Usuario extends Conectar{
 
@@ -16,6 +18,12 @@
                 $correo = $_POST["usu_correo"];
                 $pass = $_POST["usu_pass"];
                 if(empty($correo) and empty($pass)){
+                    Logger::login("LOGIN_FAILED", $correo, "EMPTY_FIELDS");
+                    (new Email())->enviarAlertaFallo(
+                        isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : "",
+                        $correo,
+                        "EMPTY_FIELDS"
+                    );
                     header("Location:".conectar::ruta()."index.php?m=2");
                     exit();
                 }else{
@@ -36,14 +44,27 @@
                                 $_SESSION["usu_id"] = $resultado["usu_id"];
                                 $_SESSION["usu_nomape"] = $resultado["usu_nomape"];
                                 $_SESSION["usu_correo"] = $resultado["usu_correo"];
+                                Logger::login("LOGIN_SUCCESS", $correo);
                                 header("Location:".Conectar::ruta()."view/Home/");
                                 exit();
                             }
                         }else{
+                            Logger::login("LOGIN_FAILED", $correo, "BAD_PASSWORD");
+                            (new Email())->enviarAlertaFallo(
+                                isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : "",
+                                $correo,
+                                "BAD_PASSWORD"
+                            );
                             header("Location:".Conectar::ruta()."index.php?m=3");
                             exit();
                         }
                     }else{
+                        Logger::login("LOGIN_FAILED", $correo, "USER_NOT_FOUND");
+                        (new Email())->enviarAlertaFallo(
+                            isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : "",
+                            $correo,
+                            "USER_NOT_FOUND"
+                        );
                         header("Location:".Conectar::ruta()."index.php?m=1");
                         exit();
                     }
