@@ -88,6 +88,16 @@
                                                                 </div>
                                                             <?php
                                                             break;
+
+                                                        case "5":
+                                                            ?>
+                                                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                                    <i class="mdi mdi-check-circle me-2"></i>
+                                                                    Contraseña actualizada. Ya puedes iniciar sesión.
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                                </div>
+                                                            <?php
+                                                            break;
                                                     }
                                                 }
                                             ?>
@@ -275,7 +285,6 @@
     </body>
 
 </html>
-
 
 
 

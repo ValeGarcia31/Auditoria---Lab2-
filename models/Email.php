@@ -81,38 +81,41 @@ class Email extends PHPMailer{
     }
 
     public function recuperar($usu_correo){
+        try {
+            $usuario = new Usuario();
+            $datos = $usuario->get_usuario_recuperacion($usu_correo);
+            if (!$datos) {
+                return "NOT_FOUND_OR_INACTIVE";
+            }
+            if ($usuario->recuperacion_en_limite($datos["usu_id"])) {
+                return "RATE_LIMITED";
+            }
 
-        $conexion = new Conectar();
+            $token = bin2hex(random_bytes(32));
+            $tokenHash = hash("sha256", $token);
+            $usuario->crear_recuperacion($datos["usu_id"], $tokenHash);
 
-        $usuario = new Usuario();
-        $datos = $usuario -> get_usuario_correo($usu_correo);
+            $conexion = new Conectar();
+            $this->configurarMailer();
+            $this->Timeout = 5;
+            $this->CharSet = "UTF-8";
+            $this->addAddress($datos["usu_correo"]);
+            $this->IsHTML(true);
+            $this->Subject = "Seguridad Informática I";
 
-        $this->configurarMailer();
-        $config = Conectar::config();
-
-        $this->CharSet = 'UTF8';
-        $this->addAddress($datos[0]["usu_correo"]);
-        $this->IsHTML(true);
-        $this->Subject = "Seguridad Informática I";
-
-        $url = $conexion->ruta();
-        $xpassusu = $this->generarXPassUsu();
-
-        $usuario -> recuperar_usuario($usu_correo,$xpassusu);
-
-        $cuerpo = file_get_contents("../assets/email/recuperar.html");
-        $cuerpo = str_replace("xpassusu",$xpassusu,$cuerpo);
-        $cuerpo = str_replace("xlinksistema",$url,$cuerpo);
-
-        $this->Body = $cuerpo;
-        $this->AltBody = strip_tags("Recupera Contraseña");
-
-        try{
-            $this->send();
-            return true;
-        }catch(Exception $e){
+            $url = $conexion->ruta() . "view/restablecer/?token=" . $token;
+            $cuerpo = file_get_contents(__DIR__ . "/../assets/email/recuperar.html");
+            $cuerpo = str_replace("xlinkrestablecer", $url, $cuerpo);
+            $this->Body = $cuerpo;
+            $this->AltBody = "Restablece tu contraseña desde el enlace recibido. El enlace vence en 30 minutos.";
+            if (!$this->send()) {
+                error_log("Error al enviar correo de recuperación: " . $this->ErrorInfo);
+                return "NOT_FOUND_OR_INACTIVE";
+            }
+            return "SENT";
+        } catch (\Throwable $e) {
             error_log("Error al enviar correo de recuperación: " . $e->getMessage() . " PHPMailer: " . $this->ErrorInfo);
-            return false;
+            return "NOT_FOUND_OR_INACTIVE";
         }
     }
 
@@ -309,13 +312,6 @@ class Email extends PHPMailer{
             throw new \RuntimeException("No se pudo escribir el estado de alertas");
         }
         fflush($estado);
-    }
-
-    private function generarXPassUsu() {
-        $parteAlfanumerica = substr(md5(rand()), 0, 3);
-        $parteNumerica = str_pad(rand(0,999),3,'0',STR_PAD_LEFT);
-        $resultado = $parteAlfanumerica . $parteNumerica;
-        return substr($resultado,0,6);
     }
 
 }

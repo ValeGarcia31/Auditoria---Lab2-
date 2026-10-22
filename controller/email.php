@@ -13,13 +13,9 @@
 
         /* TODO: Si la operación es "registrar" */
         case "recuperar":
-            $datos = $usuario->get_usuario_correo($_POST["usu_correo"]);
-            if(is_array($datos) == true and count($datos) == 0){
-                echo "0";
-            }else{
-                $email->recuperar($_POST["usu_correo"]);
-                echo "1";
-            }
+            $resultado = $email->recuperar($_POST["usu_correo"]);
+            Logger::login("PASSWORD_RESET_REQUESTED", $_POST["usu_correo"], $resultado);
+            echo "1";
             break;
     }
 ?>

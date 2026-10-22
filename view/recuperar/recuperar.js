@@ -19,15 +19,8 @@ $(document).on("click","#btnrecuperar",function(){
             if (datos == 1){
                 Swal.fire({
                     title: "Recuperar",
-                    text: "Se cambio la contraseña, y se envio a su correo electronico.",
+                    text: "Si el correo está registrado, enviaremos instrucciones para restablecer la contraseña.",
                     icon: "success",
-                    confirmButtonColor: "#5156be",
-                });
-            }else{
-                Swal.fire({
-                    title: "Recuperar",
-                    text: "El correo electronico no existe.",
-                    icon: "error",
                     confirmButtonColor: "#5156be",
                 });
             }

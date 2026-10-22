@@ -216,27 +216,110 @@
             $sql->execute();
         }
 
-        public function recuperar_usuario($usu_correo,$usu_pass){
-
-            $textoCifrado = password_hash($usu_pass, PASSWORD_DEFAULT);
-
-            /* TODO: Obtener la conexión a la base de datos utilizando el método de la clase padre */
+        public function get_usuario_recuperacion($usu_correo){
             $conectar = parent::conexion();
-            /* TODO: Establecer el juego de caracteres a UTF-8 utilizando el método de la clase padre */
             parent::set_names();
-            /* TODO: Consulta SQL para insertar un nuevo usuario en la tabla tm_usuario */
-            $sql="UPDATE tm_usuario
-                SET
-                usu_pass = ?
-                WHERE
-                usu_correo = ?";
-            /* TODO:Preparar la consulta SQL */
-            $sql=$conectar->prepare($sql);
-            /* TODO: Vincular los valores a los parámetros de la consulta */
-            $sql->bindValue(1,$textoCifrado);
-            $sql->bindValue(2,$usu_correo);
-            /* TODO: Ejecutar la consulta SQL */
+            $sql = $conectar->prepare(
+                "SELECT usu_id, usu_nomape, usu_correo
+                 FROM tm_usuario
+                 WHERE usu_correo = ? AND est = 1 AND fech_elim IS NULL"
+            );
+            $sql->bindValue(1, $usu_correo);
             $sql->execute();
+            return $sql->fetch();
         }
+
+        public function recuperacion_en_limite($usu_id){
+            $conectar = parent::conexion();
+            parent::set_names();
+            $sql = $conectar->prepare(
+                "SELECT COUNT(*)
+                 FROM tm_recuperacion
+                 WHERE usu_id = ? AND fech_crea >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)"
+            );
+            $sql->bindValue(1, $usu_id);
+            $sql->execute();
+            return (int) $sql->fetchColumn() > 0;
+        }
+
+        public function crear_recuperacion($usu_id, $token_hash){
+            $conectar = parent::conexion();
+            parent::set_names();
+            $conectar->beginTransaction();
+            try {
+                $invalidar = $conectar->prepare(
+                    "UPDATE tm_recuperacion SET usado = 1 WHERE usu_id = ? AND usado = 0"
+                );
+                $invalidar->bindValue(1, $usu_id);
+                $invalidar->execute();
+
+                $insertar = $conectar->prepare(
+                    "INSERT INTO tm_recuperacion (usu_id, token_hash, expira)
+                     VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE))"
+                );
+                $insertar->bindValue(1, $usu_id);
+                $insertar->bindValue(2, $token_hash);
+                $insertar->execute();
+                $conectar->commit();
+            } catch (\Throwable $e) {
+                $conectar->rollBack();
+                throw $e;
+            }
+        }
+
+        public function get_recuperacion_valida($token_hash){
+            $conectar = parent::conexion();
+            parent::set_names();
+            $sql = $conectar->prepare(
+                "SELECT rec_id, usu_id
+                 FROM tm_recuperacion
+                 WHERE token_hash = ? AND usado = 0 AND expira > NOW()
+                 LIMIT 1"
+            );
+            $sql->bindValue(1, $token_hash);
+            $sql->execute();
+            return $sql->fetch();
+        }
+
+        public function restablecer_recuperacion($token_hash, $pass){
+            $conectar = parent::conexion();
+            parent::set_names();
+            $conectar->beginTransaction();
+            try {
+                $consulta = $conectar->prepare(
+                    "SELECT rec_id, usu_id
+                     FROM tm_recuperacion
+                     WHERE token_hash = ? AND usado = 0 AND expira > NOW()
+                     FOR UPDATE"
+                );
+                $consulta->bindValue(1, $token_hash);
+                $consulta->execute();
+                $recuperacion = $consulta->fetch();
+                if (!$recuperacion) {
+                    $conectar->rollBack();
+                    return false;
+                }
+
+                $hash = password_hash($pass, PASSWORD_DEFAULT);
+                $actualizar = $conectar->prepare(
+                    "UPDATE tm_usuario SET usu_pass = ? WHERE usu_id = ? AND fech_elim IS NULL"
+                );
+                $actualizar->bindValue(1, $hash);
+                $actualizar->bindValue(2, $recuperacion["usu_id"]);
+                $actualizar->execute();
+
+                $invalidar = $conectar->prepare(
+                    "UPDATE tm_recuperacion SET usado = 1 WHERE usu_id = ?"
+                );
+                $invalidar->bindValue(1, $recuperacion["usu_id"]);
+                $invalidar->execute();
+                $conectar->commit();
+                return true;
+            } catch (\Throwable $e) {
+                $conectar->rollBack();
+                throw $e;
+            }
+        }
+
     }
 ?>

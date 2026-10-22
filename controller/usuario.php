@@ -32,5 +32,28 @@
             http_response_code(403);
             exit();
             break;
+
+        case "restablecer":
+            $token = isset($_POST["token"]) ? $_POST["token"] : "";
+            $pass = isset($_POST["usu_pass"]) ? $_POST["usu_pass"] : "";
+            $confirmacion = isset($_POST["usu_pass_confir"]) ? $_POST["usu_pass_confir"] : "";
+            if (strlen($pass) < 8 || strlen($pass) > 72 || $pass !== $confirmacion) {
+                echo "2";
+                break;
+            }
+            $tokenHash = hash("sha256", $token);
+            if (!$usuario->get_recuperacion_valida($tokenHash)) {
+                Logger::login("PASSWORD_RESET_INVALID_TOKEN", "", "INVALID_TOKEN");
+                echo "0";
+                break;
+            }
+            if ($usuario->restablecer_recuperacion($tokenHash, $pass)) {
+                Logger::login("PASSWORD_RESET_DONE", "", "DONE");
+                echo "1";
+            } else {
+                Logger::login("PASSWORD_RESET_INVALID_TOKEN", "", "INVALID_TOKEN");
+                echo "0";
+            }
+            break;
     }
 ?>
