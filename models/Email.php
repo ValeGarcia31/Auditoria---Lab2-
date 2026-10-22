@@ -81,6 +81,7 @@ class Email extends PHPMailer{
     }
 
     public function recuperar($usu_correo){
+        $tokenHash = null;
         try {
             $usuario = new Usuario();
             $datos = $usuario->get_usuario_recuperacion($usu_correo);
@@ -110,12 +111,20 @@ class Email extends PHPMailer{
             $this->AltBody = "Restablece tu contraseña desde el enlace recibido. El enlace vence en 30 minutos.";
             if (!$this->send()) {
                 error_log("Error al enviar correo de recuperación: " . $this->ErrorInfo);
-                return "NOT_FOUND_OR_INACTIVE";
+                $usuario->cancelar_recuperacion($tokenHash);
+                return "MAIL_ERROR";
             }
             return "SENT";
         } catch (\Throwable $e) {
             error_log("Error al enviar correo de recuperación: " . $e->getMessage() . " PHPMailer: " . $this->ErrorInfo);
-            return "NOT_FOUND_OR_INACTIVE";
+            if ($tokenHash !== null) {
+                try {
+                    $usuario->cancelar_recuperacion($tokenHash);
+                } catch (\Throwable $cancelError) {
+                    error_log("Error al cancelar recuperación: " . $cancelError->getMessage());
+                }
+            }
+            return "MAIL_ERROR";
         }
     }
 

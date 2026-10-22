@@ -321,5 +321,15 @@
             }
         }
 
+        public function cancelar_recuperacion($token_hash){
+            $conectar = parent::conexion();
+            parent::set_names();
+            $sql = $conectar->prepare(
+                "DELETE FROM tm_recuperacion WHERE token_hash = ?"
+            );
+            $sql->bindValue(1, $token_hash);
+            $sql->execute();
+        }
+
     }
 ?>
