@@ -72,37 +72,6 @@
                                             </div>
                                         </form>
 
-                                        <div class="mt-4 pt-2 text-center">
-                                            <div class="signin-other-title">
-                                                <h5 class="font-size-14 mb-3 text-muted fw-medium">- Sign up using -</h5>
-                                            </div>
-
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item">
-                                                    <!--TODO: Botón "Iniciar sesión con Google" con atributos de datos HTML para la API -->
-                                                    <div id="g_id_onload"
-                                                        data-client_id="592225408682-0k7df94bqpucikiovudb27idooij9slm.apps.googleusercontent.com"
-                                                        data-context="signin"
-                                                        data-ux_mode="popup"
-                                                        data-callback="handleCredentialResponse"
-                                                        data-auto_prompt="false"
-                                                    >
-                                                    </div>
-
-                                                    <!--TODO: Configuración del botón de inicio de sesión con Google -->
-                                                    <div class="g_id_signin"
-                                                        data-type="standard"
-                                                        data-shape="rectangular"
-                                                        data-theme="outline"
-                                                        data-text="signin_with"
-                                                        data-size="large"
-                                                        data-logo_alignment="left"
-                                                    ></div>
-
-                                                </li>
-                                            </ul>
-                                        </div>
-
                                         <div class="mt-5 text-center" style="margin-top: 0rem!important;">
                                             <p class="text-muted mb-0">Ya tiene una cuenta? <a href="../../index.php" class="text-primary fw-semibold"> Acceder </a> </p>
                                         </div>
@@ -139,10 +108,8 @@
 
         <!-- validator JS -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/validator/13.6.0/validator.min.js"></script>
-        <!--TODO: Script para cargar la API de Google Sign-In de manera asíncrona -->
-        <script src="https://accounts.google.com/gsi/client" async></script>
-
         <script type="text/javascript" src="registro.js"></script>
+
     </body>
 
 </html>

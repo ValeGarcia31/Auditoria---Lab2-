@@ -7,6 +7,11 @@
     $config = require $configFile;
 
     /* TODO:Inicia la session (si no esta iniciada) */
+    session_set_cookie_params([
+        "httponly" => true,
+        "samesite" => "Lax",
+        "secure" => isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off",
+    ]);
     session_start();
 
     /* TODO: Definición de la clase Conectar */
@@ -26,9 +31,9 @@
                 );
                 return $conectar;
             }catch(Exception $e){
-                /* TODO: En caso de error, imprime un mensaje y termina el script */
-                print "Error BD:" . $e->getMessage() . "<br>";
-                die();
+                /* TODO: En caso de error, registra el detalle y muestra un mensaje genérico */
+                error_log("Error BD: " . $e->getMessage());
+                exit("No se pudo conectar con la base de datos.");
             }
         }
 

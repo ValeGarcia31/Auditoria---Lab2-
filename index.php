@@ -53,7 +53,7 @@
                                                             ?>
                                                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                                                     <i class="mdi mdi-block-helper me-2"></i>
-                                                                    Correo Electronico no encontrado.
+                                                                    Credenciales incorrectas.
                                                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                                                 </div>
                                                             <?php
@@ -74,6 +74,16 @@
                                                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                                                     <i class="mdi mdi-block-helper me-2"></i>
                                                                     Contraseña Incorrecta.
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                                </div>
+                                                            <?php
+                                                            break;
+
+                                                        case "4":
+                                                            ?>
+                                                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                                    <i class="mdi mdi-block-helper me-2"></i>
+                                                                    Tu cuenta aún no está confirmada. Revisa tu correo.
                                                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                                                 </div>
                                                             <?php
@@ -119,40 +129,6 @@
                                                 <button class="btn btn-primary w-100 waves-effect waves-light" type="submit">Acceder</button>
                                             </div>
                                         </form>
-
-                                        <div class="mt-4 pt-2 text-center">
-                                            <div class="signin-other-title">
-                                                <h5 class="font-size-14 mb-3 text-muted fw-medium">- Acceder con -</h5>
-                                            </div>
-
-                                            <ul class="list-inline mb-0">
-
-                                                <li class="list-inline-item">
-
-                                                    <!--TODO: Botón "Iniciar sesión con Google" con atributos de datos HTML para la API -->
-                                                    <div id="g_id_onload"
-                                                        data-client_id="592225408682-0k7df94bqpucikiovudb27idooij9slm.apps.googleusercontent.com"
-                                                        data-context="signin"
-                                                        data-ux_mode="popup"
-                                                        data-callback="handleCredentialResponse"
-                                                        data-auto_prompt="false"
-                                                    >
-                                                    </div>
-
-                                                    <!--TODO: Configuración del botón de inicio de sesión con Google -->
-                                                    <div class="g_id_signin"
-                                                        data-type="standard"
-                                                        data-shape="rectangular"
-                                                        data-theme="outline"
-                                                        data-text="signin_with"
-                                                        data-size="large"
-                                                        data-logo_alignment="left"
-                                                    ></div>
-
-                                                </li>
-
-                                            </ul>
-                                        </div>
 
                                         <div class="mt-5 text-center">
                                             <p class="text-muted mb-0">No tienes cuenta? <a href="view/registro/" class="text-primary fw-semibold"> Registrate </a> </p>
@@ -296,15 +272,9 @@
         <script src="assets/js/pace.min-1.js"></script>
         <!-- password addon init -->
         <script src="assets/js/pass-addon.init-1.js"></script>
-        <!--TODO: Script para cargar la API de Google Sign-In de manera asíncrona -->
-        <script src="https://accounts.google.com/gsi/client" async></script>
-
-        <script type="text/javascript" src="acceso.js"></script>
     </body>
 
 </html>
-
-
 
 
 

@@ -5,8 +5,6 @@ $(document).ready(function(){
     const decoded_id = decodeURIComponent(confirmar);
     const id = decoded_id.replace(/\s/g, '+');
 
-    console.log(id);
-
     $.post("../../controller/usuario.php?op=activar",{usu_id : id},function (data){
 
     });

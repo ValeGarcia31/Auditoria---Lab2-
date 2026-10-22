@@ -17,7 +17,7 @@
             if(isset($_POST["enviar"])){
                 $correo = $_POST["usu_correo"];
                 $pass = $_POST["usu_pass"];
-                if(empty($correo) and empty($pass)){
+                if($correo === "" || $pass === ""){
                     Logger::login("LOGIN_FAILED", $correo, "EMPTY_FIELDS");
                     (new Email())->enviarAlertaFallo(
                         isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : "",
@@ -27,25 +27,69 @@
                     header("Location:".conectar::ruta()."index.php?m=2");
                     exit();
                 }else{
-                    $sql="SELECT * FROM tm_usuario WHERE usu_correo = ?";
+                    $sql="SELECT * FROM tm_usuario WHERE usu_correo = ? AND fech_elim IS NULL";
                     $sql=$conectar->prepare($sql);
                     $sql->bindValue(1,$correo);
                     $sql->execute();
                     $resultado=$sql->fetch();
                     if($resultado){
-                        $textoCifrado = $resultado["usu_pass"];
+                        $passGuardado = (string) $resultado["usu_pass"];
+                        $passValido = false;
+                        $hashValido = str_starts_with($passGuardado, '$2y$')
+                            || str_starts_with($passGuardado, '$argon2');
 
-                        $iv_dec = substr(base64_decode($textoCifrado), 0, openssl_cipher_iv_length($this->cipher));
-                        $cifradoSinIV = substr(base64_decode($textoCifrado), openssl_cipher_iv_length($this->cipher));
-                        $textoDecifrado = openssl_decrypt($cifradoSinIV, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv_dec);
+                        if ($hashValido) {
+                            $passValido = password_verify($pass, $passGuardado);
+                            if ($passValido && password_needs_rehash($passGuardado, PASSWORD_DEFAULT)) {
+                                $hashNuevo = password_hash($pass, PASSWORD_DEFAULT);
+                                $sqlHash = $conectar->prepare(
+                                    "UPDATE tm_usuario SET usu_pass = ? WHERE usu_id = ?"
+                                );
+                                $sqlHash->bindValue(1, $hashNuevo);
+                                $sqlHash->bindValue(2, $resultado["usu_id"]);
+                                $sqlHash->execute();
+                            }
+                        } elseif ($passGuardado !== "") {
+                            $textoCifrado = base64_decode($passGuardado, true);
+                            if ($textoCifrado !== false) {
+                                $ivLength = openssl_cipher_iv_length($this->cipher);
+                                $iv_dec = substr($textoCifrado, 0, $ivLength);
+                                $cifradoSinIV = substr($textoCifrado, $ivLength);
+                                $textoDecifrado = openssl_decrypt(
+                                    $cifradoSinIV,
+                                    $this->cipher,
+                                    $this->key,
+                                    OPENSSL_RAW_DATA,
+                                    $iv_dec
+                                );
+                                if ($textoDecifrado !== false && $textoDecifrado !== "") {
+                                    $passValido = hash_equals($textoDecifrado, $pass);
+                                    if ($passValido) {
+                                        $hashNuevo = password_hash($pass, PASSWORD_DEFAULT);
+                                        $sqlHash = $conectar->prepare(
+                                            "UPDATE tm_usuario SET usu_pass = ? WHERE usu_id = ?"
+                                        );
+                                        $sqlHash->bindValue(1, $hashNuevo);
+                                        $sqlHash->bindValue(2, $resultado["usu_id"]);
+                                        $sqlHash->execute();
+                                    }
+                                }
+                            }
+                        }
 
-                        if($textoDecifrado==$pass){
+                        if($passValido){
                             if(is_array($resultado) and count($resultado)>0){
+                                if ($resultado["est"] != 1) {
+                                    Logger::login("LOGIN_NOT_CONFIRMED", $correo, "NOT_CONFIRMED");
+                                    header("Location:".Conectar::ruta()."index.php?m=4");
+                                    exit();
+                                }
+                                session_regenerate_id(true);
                                 $_SESSION["usu_id"] = $resultado["usu_id"];
                                 $_SESSION["usu_nomape"] = $resultado["usu_nomape"];
                                 $_SESSION["usu_correo"] = $resultado["usu_correo"];
                                 Logger::login("LOGIN_SUCCESS", $correo);
-                                header("Location:".Conectar::ruta()."view/Home/");
+                                header("Location:".Conectar::ruta()."view/home/");
                                 exit();
                             }
                         }else{
@@ -62,7 +106,7 @@
                                     isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : ""
                                 );
                             }
-                            header("Location:".Conectar::ruta()."index.php?m=3");
+                            header("Location:".Conectar::ruta()."index.php?m=1");
                             exit();
                         }
                     }else{
@@ -85,8 +129,7 @@
         public function registrar_usuario($usu_nomape,$usu_correo,$usu_pass,$usu_img,$est){
 
             $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($this->cipher));
-            $cifrado = openssl_encrypt($usu_pass, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
-            $textoCifrado = base64_encode($iv . $cifrado);
+            $textoCifrado = password_hash($usu_pass, PASSWORD_DEFAULT);
 
             /* TODO: Obtener la conexión a la base de datos utilizando el método de la clase padre */
             $conectar = parent::conexion();
@@ -175,9 +218,7 @@
 
         public function recuperar_usuario($usu_correo,$usu_pass){
 
-            $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($this->cipher));
-            $cifrado = openssl_encrypt($usu_pass, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
-            $textoCifrado = base64_encode($iv . $cifrado);
+            $textoCifrado = password_hash($usu_pass, PASSWORD_DEFAULT);
 
             /* TODO: Obtener la conexión a la base de datos utilizando el método de la clase padre */
             $conectar = parent::conexion();
