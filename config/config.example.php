@@ -16,7 +16,11 @@ return [
     "smtp_secure" => "",
     "smtp_from_email" => "tucorreo@gmail.com",
     "alert_to" => "tucorreo@gmail.com",
+    // En producción usa smtp_secure "tls", puerto 587 y una contraseña de aplicación de Google.
     "alert_threshold" => 5,
     "alert_window_seconds" => 600,
+    "alert_user_threshold" => 5,
+    "alert_user_window_seconds" => 600,
+    "alert_user_cooldown_seconds" => 3600,
     "log_path" => "/var/log/login_app/security.log",
 ];

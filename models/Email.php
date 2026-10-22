@@ -141,27 +141,10 @@ class Email extends PHPMailer{
                     throw new \RuntimeException("No se pudo bloquear el estado de alertas");
                 }
 
-                rewind($estado);
-                $contenido = stream_get_contents($estado);
-                $datos = json_decode($contenido === false ? "" : $contenido, true);
-                if (
-                    !is_array($datos)
-                    || !isset($datos["fails"])
-                    || !is_array($datos["fails"])
-                    || !isset($datos["alerted"])
-                    || !is_int($datos["alerted"])
-                ) {
-                    $datos = ["fails" => [], "alerted" => 0];
-                }
-
                 $ahora = time();
                 $ventana = (int) $config["alert_window_seconds"];
-                $datos["fails"] = array_values(array_filter(
-                    $datos["fails"],
-                    function ($marca) use ($ahora, $ventana) {
-                        return is_int($marca) && $marca > $ahora - $ventana;
-                    }
-                ));
+                $datos = $this->leerEstado($estado);
+                $this->limpiarEstado($datos, $ahora, $ventana);
                 if ($datos["alerted"] <= $ahora - $ventana) {
                     $datos["alerted"] = 0;
                 }
@@ -198,14 +181,7 @@ class Email extends PHPMailer{
                     }
                 }
 
-                $serializado = json_encode($datos, JSON_UNESCAPED_SLASHES);
-                if ($serializado === false) {
-                    throw new \RuntimeException("No se pudo serializar el estado de alertas");
-                }
-                if (!ftruncate($estado, 0) || !rewind($estado) || fwrite($estado, $serializado) === false) {
-                    throw new \RuntimeException("No se pudo escribir el estado de alertas");
-                }
-                fflush($estado);
+                $this->guardarEstado($estado, $datos);
                 flock($estado, LOCK_UN);
             } finally {
                 fclose($estado);
@@ -213,6 +189,126 @@ class Email extends PHPMailer{
         } catch (\Throwable $e) {
             error_log("No se pudo enviar la alerta de login: " . $e->getMessage() . " PHPMailer: " . $this->ErrorInfo);
         }
+    }
+
+    public function enviarAlertaCuenta($correoCuenta, $nombre, $ip){
+        try {
+            $config = Conectar::config();
+            $logDirectory = dirname($config["log_path"]);
+            $marcaPath = $logDirectory . DIRECTORY_SEPARATOR . "acct_"
+                . hash("sha256", strtolower((string) $correoCuenta));
+            if (!is_dir($logDirectory) && !mkdir($logDirectory, 0755, true) && !is_dir($logDirectory)) {
+                throw new \RuntimeException("No se pudo crear la carpeta de estados de alertas");
+            }
+
+            $estado = fopen($marcaPath, "c+");
+            if ($estado === false) {
+                throw new \RuntimeException("No se pudo abrir el estado de alertas");
+            }
+
+            try {
+                if (!flock($estado, LOCK_EX)) {
+                    throw new \RuntimeException("No se pudo bloquear el estado de alertas");
+                }
+
+                $ahora = time();
+                $datos = $this->leerEstado($estado);
+                $this->limpiarEstado($datos, $ahora, (int) $config["alert_user_window_seconds"]);
+                $datos["fails"][] = $ahora;
+
+                $debeAlertar = count($datos["fails"]) >= (int) $config["alert_user_threshold"]
+                    && $datos["alerted"] <= $ahora - (int) $config["alert_user_cooldown_seconds"];
+                if ($debeAlertar) {
+                    $correoValidado = filter_var($correoCuenta, FILTER_VALIDATE_EMAIL);
+                    if ($correoValidado === false) {
+                        error_log("No se pudo enviar la alerta de cuenta: correo de cuenta inválido");
+                    } else {
+                        $nombreSeguro = preg_replace('/[\r\n\x00-\x1F\x7F]/', '', (string) $nombre);
+                        $ipSegura = preg_replace('/[\r\n\x00-\x1F\x7F]/', '', (string) $ip);
+                        if ($nombreSeguro === null) {
+                            $nombreSeguro = "";
+                        }
+                        if ($ipSegura === null) {
+                            $ipSegura = "";
+                        }
+                        $nombreSeguro = mb_substr($nombreSeguro, 0, 64, "UTF-8");
+                        $ipSegura = mb_substr($ipSegura, 0, 64, "UTF-8");
+
+                        $this->configurarMailer();
+                        $this->Timeout = 5;
+                        $this->CharSet = "UTF-8";
+                        $this->addAddress($correoValidado);
+                        $this->isHTML(false);
+                        $this->Subject = "Aviso de seguridad: intentos de acceso a tu cuenta";
+                        $this->Body = "Hola " . $nombreSeguro . "," . PHP_EOL
+                            . "Se registraron " . count($datos["fails"])
+                            . " intentos fallidos en la ventana de seguridad." . PHP_EOL
+                            . "Última IP: " . $ipSegura . PHP_EOL
+                            . "Fecha y hora: " . date("c") . PHP_EOL
+                            . "Si fuiste tú, ignora este mensaje. Si no, cambia tu contraseña. "
+                            . "Tras varios intentos más, la IP podría ser bloqueada.";
+                        $envioExitoso = false;
+                        try {
+                            $envioExitoso = $this->send();
+                            if (!$envioExitoso) {
+                                error_log("PHPMailer no pudo enviar la alerta de cuenta: " . $this->ErrorInfo);
+                            }
+                        } catch (\Throwable $e) {
+                            error_log(
+                                "Excepción al enviar la alerta de cuenta: " . $e->getMessage()
+                                . " PHPMailer: " . $this->ErrorInfo
+                            );
+                        }
+                        if ($envioExitoso) {
+                            $datos["alerted"] = $ahora;
+                        }
+                    }
+                }
+
+                $this->guardarEstado($estado, $datos);
+                flock($estado, LOCK_UN);
+            } finally {
+                fclose($estado);
+            }
+        } catch (\Throwable $e) {
+            error_log("No se pudo enviar la alerta de cuenta: " . $e->getMessage() . " PHPMailer: " . $this->ErrorInfo);
+        }
+    }
+
+    private function leerEstado($estado){
+        rewind($estado);
+        $contenido = stream_get_contents($estado);
+        $datos = json_decode($contenido === false ? "" : $contenido, true);
+        if (
+            !is_array($datos)
+            || !isset($datos["fails"])
+            || !is_array($datos["fails"])
+            || !isset($datos["alerted"])
+            || !is_int($datos["alerted"])
+        ) {
+            return ["fails" => [], "alerted" => 0];
+        }
+        return $datos;
+    }
+
+    private function limpiarEstado(&$datos, $ahora, $ventana){
+        $datos["fails"] = array_values(array_filter(
+            $datos["fails"],
+            function ($marca) use ($ahora, $ventana) {
+                return is_int($marca) && $marca > $ahora - $ventana;
+            }
+        ));
+    }
+
+    private function guardarEstado($estado, $datos){
+        $serializado = json_encode($datos, JSON_UNESCAPED_SLASHES);
+        if ($serializado === false) {
+            throw new \RuntimeException("No se pudo serializar el estado de alertas");
+        }
+        if (!ftruncate($estado, 0) || !rewind($estado) || fwrite($estado, $serializado) === false) {
+            throw new \RuntimeException("No se pudo escribir el estado de alertas");
+        }
+        fflush($estado);
     }
 
     private function generarXPassUsu() {

@@ -55,6 +55,13 @@
                                 $correo,
                                 "BAD_PASSWORD"
                             );
+                            if ($resultado["est"] == 1) {
+                                (new Email())->enviarAlertaCuenta(
+                                    $resultado["usu_correo"],
+                                    $resultado["usu_nomape"],
+                                    isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : ""
+                                );
+                            }
                             header("Location:".Conectar::ruta()."index.php?m=3");
                             exit();
                         }
