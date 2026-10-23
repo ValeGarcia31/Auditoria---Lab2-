@@ -68,7 +68,7 @@ document.getElementById("sa-basic").addEventListener("click", function () {
     Swal.fire({
       title: "Sweet!",
       text: "Modal with a custom image.",
-      imageUrl: "assets/images/logo-sm.svg",
+      imageUrl: "assets/picture/logo-sm.svg",
       imageHeight: 48,
       confirmButtonColor: "#5156be",
       animation: !1,

@@ -18,8 +18,10 @@
             if(is_array($datos) == true and count($datos) == 0){
                 $datos1 = $usuario->registrar_usuario($_POST["usu_nomape"],$_POST["usu_correo"],$_POST["usu_pass"],"",2);
                 $email->registrar($datos1[0]["usu_id"]);
+                Logger::login("REGISTER", $_POST["usu_correo"], "NEW_ACCOUNT");
                 echo "1";
             }else{
+                Logger::login("REGISTER", $_POST["usu_correo"], "EMAIL_EXISTS");
                 echo "0";
             }
             break;
