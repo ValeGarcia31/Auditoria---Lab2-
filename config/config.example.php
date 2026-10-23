@@ -4,7 +4,7 @@ return [
     "db_name" => "mesadepartes",
     "db_user" => "usuario_ejemplo",
     "db_pass" => "contraseña_ejemplo",
-    "base_url" => "http://localhost/Seguridad_Informatica_Valeria_Garcia/",
+    "base_url" => "http://10.204.5.7/login/",
     "crypto_key" => "MesaDePartesAnderCode",
     "smtp_host" => "smtp.ejemplo.com",
     "smtp_port" => 587,
