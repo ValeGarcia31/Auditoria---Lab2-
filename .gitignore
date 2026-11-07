@@ -1,5 +1,6 @@
 config/config.local.php
 .env
+node_modules/
 *.log
 logs/
 include/vendor/

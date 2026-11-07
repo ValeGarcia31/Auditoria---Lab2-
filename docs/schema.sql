@@ -1,25 +1,26 @@
-CREATE TABLE IF NOT EXISTS `tm_usuario` (
-  `usu_id` int NOT NULL AUTO_INCREMENT,
-  `usu_nomape` varchar(90) COLLATE utf8mb3_spanish_ci NOT NULL,
-  `usu_correo` varchar(50) COLLATE utf8mb3_spanish_ci NOT NULL,
-  `usu_pass` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci NOT NULL,
-  `fech_crea` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `usu_img` varchar(500) COLLATE utf8mb3_spanish_ci DEFAULT NULL,
-  `fech_modi` datetime DEFAULT NULL,
-  `fech_elim` datetime DEFAULT NULL,
-  `fech_acti` datetime DEFAULT NULL,
-  `est` int NOT NULL DEFAULT '2',
-  PRIMARY KEY (`usu_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_spanish_ci;
+CREATE TABLE IF NOT EXISTS tm_usuario (
+  usu_id SERIAL PRIMARY KEY,
+  usu_nomape VARCHAR(90) NOT NULL,
+  usu_correo VARCHAR(50) NOT NULL,
+  usu_pass VARCHAR(200) NOT NULL,
+  fech_crea TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  usu_img VARCHAR(500),
+  fech_modi TIMESTAMP,
+  fech_elim TIMESTAMP,
+  fech_acti TIMESTAMP,
+  est INTEGER NOT NULL DEFAULT 2
+);
 
-CREATE TABLE IF NOT EXISTS `tm_recuperacion` (
-  `rec_id` int NOT NULL AUTO_INCREMENT,
-  `usu_id` int NOT NULL,
-  `token_hash` char(64) NOT NULL,
-  `expira` datetime NOT NULL,
-  `usado` tinyint NOT NULL DEFAULT '0',
-  `fech_crea` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`rec_id`),
-  KEY `idx_tm_recuperacion_token_hash` (`token_hash`),
-  KEY `idx_tm_recuperacion_usu_id` (`usu_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_spanish_ci;
+CREATE TABLE IF NOT EXISTS tm_recuperacion (
+  rec_id SERIAL PRIMARY KEY,
+  usu_id INTEGER NOT NULL REFERENCES tm_usuario(usu_id),
+  token_hash CHAR(64) NOT NULL,
+  expira TIMESTAMP NOT NULL,
+  usado INTEGER NOT NULL DEFAULT 0,
+  fech_crea TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_tm_recuperacion_token_hash
+  ON tm_recuperacion(token_hash);
+CREATE INDEX IF NOT EXISTS idx_tm_recuperacion_usu_id
+  ON tm_recuperacion(usu_id);

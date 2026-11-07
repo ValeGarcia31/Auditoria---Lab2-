@@ -1,26 +1,20 @@
 # Seguridad Informática I
 
-Aplicación PHP para el acceso, registro, confirmación y recuperación de cuentas
-de Seguridad Informática I, con persistencia en MySQL y envío de correos mediante
-PHPMailer.
+Aplicación Node.js con Express para el acceso, registro, confirmación y
+recuperación de cuentas, con persistencia en PostgreSQL y correo mediante
+Nodemailer.
 
 ## Requisitos
 
-- PHP con PDO MySQL y OpenSSL habilitados.
-- MySQL.
-- Composer.
+- Node.js.
+- PostgreSQL.
 
 ## Instalación
 
-1. Copia `config/config.example.php` como `config/config.local.php`.
-2. Completa `config/config.local.php` con los datos de tu entorno. Mantén el
-   valor de `crypto_key` indicado para que las contraseñas existentes sigan
-   funcionando.
-3. Crea la base de datos `mesadepartes`.
-4. Importa `docs/schema.sql` en esa base de datos.
-5. Ejecuta `composer install` dentro de `include/`.
-6. Configura el proyecto en Laragon o en tu servidor Linux y verifica
-   `base_url`.
+1. Completa `config/config.json` con los datos de PostgreSQL y Gmail.
+2. Crea la base de datos `mesadepartes`.
+3. Importa `docs/schema.sql` en esa base de datos.
+4. Ejecuta `npm install`.
+5. Inicia el servidor con `npm start` y abre `http://localhost:3000/login`.
 
-`config/config.local.php` contiene la configuración local y no se sube al
-repositorio.
+`config/config.json` contiene la configuración local para esta práctica.

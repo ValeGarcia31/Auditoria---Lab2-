@@ -7,15 +7,15 @@
         <meta content="Premium Multipurpose Admin & Dashboard Template" name="description">
         <meta content="Themesbrand" name="author">
         <!-- Sweet Alert-->
-        <link href="../../assets/css/sweetalert2.min.css" rel="stylesheet" type="text/css">
+        <link href="/assets/css/sweetalert2.min.css" rel="stylesheet" type="text/css">
         <!-- preloader css -->
-        <link rel="stylesheet" href="../../assets/css/preloader.min.css" type="text/css">
+        <link rel="stylesheet" href="/assets/css/preloader.min.css" type="text/css">
         <!-- Bootstrap Css -->
-        <link href="../../assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css">
+        <link href="/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css">
         <!-- Icons Css -->
-        <link href="../../assets/css/icons.min.css" rel="stylesheet" type="text/css">
+        <link href="/assets/css/icons.min.css" rel="stylesheet" type="text/css">
         <!-- App Css-->
-        <link href="../../assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css">
+        <link href="/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css">
     </head>
 
     <body>
@@ -29,7 +29,7 @@
                                 <div class="d-flex flex-column h-100">
                                     <div class="mb-4 mb-md-5 text-center">
                                         <a href="index.html" class="d-block auth-logo">
-                                            <img src="../../assets/picture/logo-sm.svg" alt="" height="28"> <span class="logo-txt">Valeria García</span>
+                                            <img src="/assets/picture/logo-sm.svg" alt="" height="28"> <span class="logo-txt">Valeria García</span>
                                         </a>
                                     </div>
                                     <div class="auth-content my-auto">
@@ -51,7 +51,7 @@
                                         </form>
 
                                         <div class="mt-5 text-center">
-                                            <p class="text-muted mb-0">Regresar a <a href="../../index.php" class="text-primary fw-semibold"> Acceder </a> </p>
+                                            <p class="text-muted mb-0">Regresar a <a href="/login" class="text-primary fw-semibold"> Acceder </a> </p>
                                         </div>
                                     </div>
                                     <div class="mt-4 mt-md-5 text-center">
@@ -63,7 +63,7 @@
                         <!-- end auth full page content -->
                     </div>
 
-                    <?php require_once("../html/carrusel.php")?>
+                    <%- include("carrusel") %>
 
                 </div>
                 <!-- end row -->
@@ -71,19 +71,19 @@
             <!-- end container fluid -->
         </div>
         <!-- JAVASCRIPT -->
-        <script src="../../assets/js/jquery.min.js"></script>
-        <script src="../../assets/js/bootstrap.bundle.min.js"></script>
-        <script src="../../assets/js/metisMenu.min.js"></script>
-        <script src="../../assets/js/simplebar.min.js"></script>
-        <script src="../../assets/js/waves.min.js"></script>
-        <script src="../../assets/js/feather.min.js"></script>
+        <script src="/assets/js/jquery.min.js"></script>
+        <script src="/assets/js/bootstrap.bundle.min.js"></script>
+        <script src="/assets/js/metisMenu.min.js"></script>
+        <script src="/assets/js/simplebar.min.js"></script>
+        <script src="/assets/js/waves.min.js"></script>
+        <script src="/assets/js/feather.min.js"></script>
         <!-- pace js -->
-        <script src="../../assets/js/pace.min.js"></script>
+        <script src="/assets/js/pace.min.js"></script>
 
         <!-- Sweet Alerts js -->
-        <script src="../../assets/js/sweetalert2.min.js"></script>
+        <script src="/assets/js/sweetalert2.min.js"></script>
 
-        <script type="text/javascript" src="recuperar.js"></script>
+        <script type="text/javascript" src="/view/recuperar/recuperar.js"></script>
     </body>
 
 </html>

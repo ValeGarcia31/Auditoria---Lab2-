@@ -1,0 +1,21 @@
+{
+  "db_host": "localhost",
+  "db_port": 5432,
+  "db_name": "mesadepartes",
+  "db_user": "postgres",
+  "db_pass": "Hola2026*",
+  "base_url": "http://localhost:3000/",
+  "crypto_key": "MesaDePartesAnderCode",
+  "smtp": {
+    "host": "smtp.gmail.com",
+    "port": 587,
+    "secure": false,
+    "auth": true,
+    "user": "vg6515198@gmail.com",
+    "pass": "fxtatnhvxtmgrxpn"
+  },
+  "smtp_from_name": "Valeria García",
+  "smtp_from_email": "vg6515198@gmail.com",
+  "alert_to": "vg6515198@gmail.com",
+  "log_path": "logs/security.log"
+}
