@@ -1,9 +1,8 @@
 const fs = require("fs");
 const path = require("path");
-const config = require("../config/config.json");
 
 function login(event, user, reason = "", ip = "") {
-  const logPath = path.resolve(config.log_path);
+  const logPath = path.resolve(process.env.LOG_PATH || "logs/security.log");
   const entry = {
     ts: new Date().toISOString(),
     event,

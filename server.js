@@ -1,22 +1,31 @@
+require("dotenv").config();
+
 const path = require("path");
 const express = require("express");
 const session = require("express-session");
+const helmet = require("helmet");
 const multer = require("multer");
 const Usuario = require("./models/Usuario");
 const Logger = require("./models/Logger");
+const { isValidEmail, isValidPassword } = require("./utils/validation");
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "view"));
+app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 app.use(multer().any());
 app.use(session({
-  secret: "AuditoriaLab2SessionSecret",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: "lax" }
+  cookie: {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production"
+  }
 }));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use("/view", express.static(path.join(__dirname, "view")));
@@ -31,7 +40,7 @@ app.get(["/", "/login", "/index.php"], (req, res) => render(res, "login", { mess
 app.post(["/", "/login", "/index.php"], async (req, res) => {
   const correo = req.body.usu_correo || "";
   const pass = req.body.usu_pass || "";
-  if (correo === "" || pass === "") {
+  if (!isValidEmail(correo) || !isValidPassword(pass)) {
     Logger.login("LOGIN_FAILED", correo, "EMPTY_FIELDS", req.ip);
     return res.redirect("/login?m=2");
   }
@@ -41,7 +50,10 @@ app.post(["/", "/login", "/index.php"], async (req, res) => {
     if (!resultado) return res.redirect("/login?m=1");
     if (resultado.est !== 1) return res.redirect("/login?m=4");
     req.session.regenerate((error) => {
-      if (error) return res.status(500).send("No se pudo iniciar la sesión.");
+      if (error) {
+        console.error("Error al regenerar sesión:", error);
+        return res.status(500).send("Ocurrió un error, intenta más tarde");
+      }
       req.session.usu_id = resultado.usu_id;
       req.session.usu_nomape = resultado.usu_nomape;
       req.session.usu_correo = resultado.usu_correo;
@@ -49,18 +61,23 @@ app.post(["/", "/login", "/index.php"], async (req, res) => {
     });
   } catch (error) {
     console.error("Error en login:", error);
-    return res.status(500).send("No se pudo iniciar la sesión.");
+    return res.status(500).send("Ocurrió un error, intenta más tarde");
   }
 });
 
 app.get(["/register", "/view/registro", "/view/registro/index.php"], (req, res) => render(res, "registro"));
 app.get(["/recuperar", "/view/recuperar", "/view/recuperar/index.php"], (req, res) => render(res, "recuperar"));
 app.get(["/restablecer", "/view/restablecer", "/view/restablecer/index.php"], async (req, res) => {
-  const token = String(req.query.token || "");
-  const valid = /^[a-f0-9]{64}$/i.test(token)
-    ? await new Usuario().getRecuperacionValida(Usuario.hashToken(token))
-    : false;
-  return render(res, "restablecer", { token, recuperacionValida: Boolean(valid) });
+  try {
+    const token = String(req.query.token || "");
+    const valid = /^[a-f0-9]{64}$/i.test(token)
+      ? await new Usuario().getRecuperacionValida(Usuario.hashToken(token))
+      : false;
+    return render(res, "restablecer", { token, recuperacionValida: Boolean(valid) });
+  } catch (error) {
+    console.error("Error al validar recuperación:", error);
+    return res.status(500).send("Ocurrió un error, intenta más tarde");
+  }
 });
 
 app.use(["/controller/usuario", "/controller/usuario.php"], require("./controller/usuario"));
@@ -83,7 +100,7 @@ app.get(["/logout", "/view/logout", "/view/logout/index.php"], (req, res) => {
   req.session.destroy((error) => {
     if (error) {
       console.error("Error al cerrar sesión:", error);
-      return res.status(500).send("No se pudo cerrar la sesión.");
+      return res.status(500).send("Ocurrió un error, intenta más tarde");
     }
     return res.redirect("/login");
   });
@@ -92,7 +109,7 @@ app.get(["/logout", "/view/logout", "/view/logout/index.php"], (req, res) => {
 app.use((error, req, res, next) => {
   console.error("Error no controlado:", error);
   if (res.headersSent) return next(error);
-  return res.status(500).send("Error interno del servidor.");
+  return res.status(500).send("Ocurrió un error, intenta más tarde");
 });
 
 if (require.main === module) {
