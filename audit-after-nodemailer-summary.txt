@@ -1,0 +1,6 @@
+Nodemailer: `-- nodemailer@10.4.0
+Vulnerabilidades totales: 0
+Critical: 0
+High: 0
+Moderate: 0
+Low: 0
