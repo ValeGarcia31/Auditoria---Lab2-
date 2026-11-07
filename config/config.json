@@ -5,7 +5,7 @@
   "db_user": "postgres",
   "db_pass": "Hola2026*",
   "base_url": "http://localhost:3000/",
-  "crypto_key": "MesaDePartesAnderCode",
+  "crypto_key": "SeguridadInformatica1*",
   "smtp": {
     "host": "smtp.gmail.com",
     "port": 587,
