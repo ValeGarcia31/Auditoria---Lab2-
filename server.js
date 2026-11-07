@@ -31,10 +31,13 @@ app.get(["/", "/login", "/index.php"], (req, res) => render(res, "login", { mess
 app.post(["/", "/login", "/index.php"], async (req, res) => {
   const correo = req.body.usu_correo || "";
   const pass = req.body.usu_pass || "";
-  if (correo === "" || pass === "") return res.redirect("/login?m=2");
+  if (correo === "" || pass === "") {
+    Logger.login("LOGIN_FAILED", correo, "EMPTY_FIELDS", req.ip);
+    return res.redirect("/login?m=2");
+  }
 
   try {
-    const resultado = await new Usuario().login(correo, pass);
+    const resultado = await new Usuario().login(correo, pass, req.ip);
     if (!resultado) return res.redirect("/login?m=1");
     if (resultado.est !== 1) return res.redirect("/login?m=4");
     req.session.regenerate((error) => {
@@ -42,7 +45,6 @@ app.post(["/", "/login", "/index.php"], async (req, res) => {
       req.session.usu_id = resultado.usu_id;
       req.session.usu_nomape = resultado.usu_nomape;
       req.session.usu_correo = resultado.usu_correo;
-      Logger.login("LOGIN_SUCCESS", correo);
       return res.redirect("/home");
     });
   } catch (error) {

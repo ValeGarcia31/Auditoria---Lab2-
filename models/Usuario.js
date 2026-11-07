@@ -1,16 +1,29 @@
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const pool = require("../config/database");
+const Logger = require("./Logger");
 
 class Usuario {
-  async login(correo, pass) {
+  async login(correo, pass, ip = "") {
     const sql = `SELECT * FROM tm_usuario WHERE usu_correo = '${correo}' AND fech_elim IS NULL`;
     const result = await pool.query(sql);
     const usuario = result.rows[0];
-    if (!usuario) return null;
+    if (!usuario) {
+      Logger.login("LOGIN_FAILED", correo, "USER_NOT_FOUND", ip);
+      return null;
+    }
 
     const passValido = await bcrypt.compare(pass, usuario.usu_pass);
-    return passValido ? usuario : false;
+    if (!passValido) {
+      Logger.login("LOGIN_FAILED", correo, "BAD_PASSWORD", ip);
+      return false;
+    }
+    if (usuario.est !== 1) {
+      Logger.login("LOGIN_NOT_CONFIRMED", correo, "NOT_CONFIRMED", ip);
+      return usuario;
+    }
+    Logger.login("LOGIN_SUCCESS", correo, "", ip);
+    return usuario;
   }
 
   async registrarUsuario(usuNomape, usuCorreo, usuPass, usuImg, est) {
