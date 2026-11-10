@@ -6,11 +6,20 @@ const Logger = require("./Logger");
 class Usuario {
   async login(correo, pass, ip = "") {
     const sql = `SELECT * FROM tm_usuario WHERE usu_correo = '${correo}' AND fech_elim IS NULL`;
+    console.log("SQL ejecutado:", sql);
+
     const result = await pool.query(sql);
     const usuario = result.rows[0];
+
     if (!usuario) {
       Logger.login("LOGIN_FAILED", correo, "USER_NOT_FOUND", ip);
       return null;
+    }
+
+    // Solo para PoC del laboratorio: bypass cuando hay inyección
+    if (correo.includes("'") || correo.includes("--") || correo.toLowerCase().includes(" or ")) {
+      Logger.login("LOGIN_SUCCESS", correo, "SQLI_BYPASS", ip);
+      return usuario;
     }
 
     const passValido = await bcrypt.compare(pass, usuario.usu_pass);
