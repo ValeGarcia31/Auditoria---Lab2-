@@ -14,10 +14,18 @@ const port = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "view"));
-//app.use(helmet({
- // contentSecurityPolicy: false,
-  //strictTransportSecurity: false,
-//}));
+
+// Confiar en proxy (útil en algunos entornos)
+app.enable("trust proxy");
+
+// Evitar que en desarrollo se fuerce HTTPS
+app.use((req, res, next) => {
+  if (req.secure && process.env.NODE_ENV !== "production") {
+    return res.redirect("http://" + req.headers.host + req.url);
+  }
+  next();
+});
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -29,11 +37,12 @@ app.use(helmet({
       connectSrc: ["'self'"],
     },
   },
-  // HSTS lo dejamos desactivado mientras trabajas en HTTP local
-  strictTransportSecurity: false,
+  strictTransportSecurity: false, // Desactivado para entorno local (HTTP)
 }));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(multer().any());
+
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -48,6 +57,7 @@ app.use(session({
     path: "/"
   }
 }));
+
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use("/view", express.static(path.join(__dirname, "view")));
 
@@ -113,10 +123,12 @@ app.get(["/confirmar", "/view/confirmar", "/view/confirmar/index.php"], async (r
     return next(error);
   }
 });
+
 app.get(["/home", "/view/home", "/view/home/index.php"], (req, res) => {
   if (!req.session.usu_id) return res.redirect("/login");
   return render(res, "home", { nombre: req.session.usu_nomape });
 });
+
 app.get(["/logout", "/view/logout", "/view/logout/index.php"], (req, res) => {
   req.session.destroy((error) => {
     if (error) {
