@@ -14,17 +14,22 @@ const port = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "view"));
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+  strictTransportSecurity: false,
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(multer().any());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  name: "sesion_app",
   cookie: {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production"
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 30
   }
 }));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
