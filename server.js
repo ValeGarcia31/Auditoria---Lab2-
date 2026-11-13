@@ -29,7 +29,9 @@ app.use(session({
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    maxAge: 1000 * 60 * 30
+    maxAge: 1000 * 60 * 30,
+    expires: new Date(Date.now() + 1000 * 60 * 30),
+    path: "/"
   }
 }));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
